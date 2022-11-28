@@ -2,6 +2,7 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
+import org.hibernate.Transaction;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,16 +26,27 @@ public class UserDaoJDBCImpl implements UserDao {
                   `lastname` VARCHAR(45) NOT NULL,
                   `age` INT(3) NOT NULL,
                   PRIMARY KEY (`id`));""";
+        Connection connection = null;
         PreparedStatement preparedStatement = null;
-        try (Connection connection = util.getConnection()) {
+        try {
+            connection = util.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         } finally {
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -45,15 +57,27 @@ public class UserDaoJDBCImpl implements UserDao {
     public void dropUsersTable() {
         PreparedStatement preparedStatement = null;
         String sql = "drop table if exists Users;";
-        try (Connection connection = util.getConnection()) {
+        Connection connection = null;
+        try {
+            connection = util.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         } finally {
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -64,7 +88,9 @@ public class UserDaoJDBCImpl implements UserDao {
     public void saveUser(String name, String lastName, byte age) {
         String sql = "insert into Users (name, lastname, age) values (?,?,?);";
         PreparedStatement preparedStatement = null;
-        try (Connection connection = util.getConnection()) {
+        Connection connection = null;
+        try {
+            connection = util.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
@@ -74,10 +100,18 @@ public class UserDaoJDBCImpl implements UserDao {
             System.out.println("User с именем - " + name + " добавлен в базу данных");
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         } finally {
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -88,17 +122,27 @@ public class UserDaoJDBCImpl implements UserDao {
     public void removeUserById(long id) {
         PreparedStatement preparedStatement = null;
         String sql = "delete from Users where id = ?;";
-        try (Connection connection = util.getConnection()) {
+        Connection connection = null;
+        try {
+            connection = util.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         } finally {
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -110,7 +154,9 @@ public class UserDaoJDBCImpl implements UserDao {
         List<User> list = new ArrayList<>();
         String sql = "select * from Users;"; // добавление юзера
         PreparedStatement preparedStatement = null;
-        try (Connection connection = util.getConnection()) {
+        Connection connection = null;
+        try {
+            connection = util.getConnection();
             preparedStatement = connection.prepareStatement(sql); // подготовка запроса на отправку
             ResultSet resultSet = preparedStatement.executeQuery();//исполнение запроса отрпавка его в базу
             while (resultSet.next()) {
@@ -120,10 +166,18 @@ public class UserDaoJDBCImpl implements UserDao {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         } finally {
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -135,16 +189,26 @@ public class UserDaoJDBCImpl implements UserDao {
     public void cleanUsersTable() {
         String sql = "truncate table Users;";
         PreparedStatement preparedStatement = null;
-        try (Connection connection = util.getConnection()) {
+        Connection connection = null;
+        try {
+            connection = util.getConnection();
             preparedStatement = connection.prepareStatement(sql); // подготовка запроса на отправку
             preparedStatement.executeUpdate(); //исполнение запроса отрпавка его в базу
             connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         } finally {
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

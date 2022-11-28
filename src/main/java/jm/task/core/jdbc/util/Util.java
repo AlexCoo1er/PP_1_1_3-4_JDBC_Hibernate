@@ -13,9 +13,9 @@ public class Util {
     private static final String USERNAME = "root";
     private static final String PASSWORD = "root";
 
-    private Connection connection;
+    private Connection connection = null;
 
-    public Connection getConnection() throws SQLException {
+    public synchronized Connection getConnection() throws SQLException{
         if (connection == null || connection.isClosed()) {
             Driver driver = new com.mysql.cj.jdbc.Driver();
             DriverManager.registerDriver(driver);
